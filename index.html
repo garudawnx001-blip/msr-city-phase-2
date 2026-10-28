@@ -463,7 +463,7 @@ show('Leisure',tabs.firstChild);
 // split headings into lines-ish (word spans)
 document.querySelectorAll('.split').forEach(el=>{const walk=n=>{[...n.childNodes].forEach(c=>{if(c.nodeType===3){const f=document.createDocumentFragment();c.textContent.split(/(\s+)/).forEach(w=>{if(!w)return;if(/^\s+$/.test(w)){f.appendChild(document.createTextNode(w));return}const o=document.createElement('span');o.className='sp';const i=document.createElement('span');i.textContent=w;o.appendChild(i);f.appendChild(o)});c.replaceWith(f)}else if(c.nodeType===1)walk(c)})};walk(el)});
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
-window.addEventListener('load',()=>setTimeout(()=>{document.body.classList.add('ready');start()},900));
+let __st=0;const go=()=>{if(__st)return;__st=1;document.body.classList.add('ready');start()};document.addEventListener('DOMContentLoaded',()=>setTimeout(go,1100));window.addEventListener('load',()=>setTimeout(go,300));setTimeout(go,2500);
 function start(){
  const nav=document.getElementById('nav'),mbar=document.getElementById('mbar');
  const onS=y=>{nav.classList.toggle('solid',y>40);mbar.classList.toggle('show',y>500)};
