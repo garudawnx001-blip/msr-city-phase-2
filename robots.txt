@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://garudawnx001-blip.github.io/msr-city-phase-2/sitemap.xml
