@@ -101,7 +101,7 @@ if(window.gsap&&!reduce){gsap.registerPlugin(ScrollTrigger);
   const h1=$('.hero h1');if(h1){h1.innerHTML=h1.innerHTML.split(/(<[^>]+>|\s+)/).map(t=>!t||/^</.test(t)||/^\s+$/.test(t)?t:`<span class="w"><span>${t}</span></span>`).join('')}
   // Gaudí trencadís tiles that break away to reveal each arch / feature image
   if(!lite){const C=['#E8602A','#B0336A','#6FAE3A','#0B7DB0','#F2A33A','#9C4A2E'];
-    $$('.arch,.amimg,.gal figure:nth-child(1),.gal figure:nth-child(2),.eoiban').forEach(el=>{const t=document.createElement('div');t.className='tiles';
+    $$('.arch,.amimg,.eoiban').forEach(el=>{const t=document.createElement('div');t.className='tiles';
       t.innerHTML=Array.from({length:48},()=>`<i style="--c:${C[Math.random()*C.length|0]}"></i>`).join('');el.appendChild(t);
       ScrollTrigger.create({trigger:el,start:'top 82%',once:true,onEnter:()=>gsap.to(t.children,{scale:0,rotate:()=>gsap.utils.random(-60,60),opacity:0,duration:.7,ease:'power3.in',stagger:{each:.012,from:'random'},onComplete:()=>t.remove()})})})}
   if(!lite&&!touch)try{const lenis=new Lenis({lerp:.1});lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(t=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);
@@ -118,3 +118,34 @@ if(window.gsap&&!reduce){gsap.registerPlugin(ScrollTrigger);
   addEventListener('load',()=>ScrollTrigger.refresh());
 }else $$('.rv').forEach(e=>{e.style.opacity=1;e.style.transform='none'});
 })();
+
+/* ===== Cinematic 3D carousel ===== */
+(()=>{const st=document.getElementById('cine');if(!st)return;const sec=st.closest('.cine'),S=[...st.querySelectorAll('.cs')],T=[...document.querySelectorAll('#cineThumbs .ct')],n=S.length,
+cap=document.getElementById('cineCap'),sub=document.getElementById('cineSub'),num=document.getElementById('cineN'),bar=document.getElementById('cineBar'),bg=document.getElementById('cineBg');
+const D=(typeof G!=='undefined'?G:[]);let a=0,timer=null,vis=false;const AUTO=5500;
+S.forEach(s=>{const sh=document.createElement('i');sh.className='shine';s.appendChild(sh)});
+function lay(){const w=S[0].offsetWidth,mob=innerWidth<821;S.forEach((s,i)=>{let d=i-a;if(d>n/2)d-=n;if(d<-n/2)d+=n;const ad=Math.abs(d);
+ const x=d*w*(mob?.86:.64),z=-ad*(mob?160:260),ry=-Math.sign(d)*Math.min(ad,2)*(mob?18:30),sc=1-Math.min(ad,3)*.06;
+ s.style.transform=`translate3d(${x}px,0,${z}px) rotateY(${ry}deg) scale(${sc})`;s.style.opacity=ad>2.5?0:1-ad*.18;s.style.filter=`brightness(${1-Math.min(ad,2)*.32})`;s.style.zIndex=20-ad;s.style.pointerEvents=ad>2?'none':'auto';s.classList.toggle('on',d===0)});
+ T.forEach((t,i)=>t.classList.toggle('on',i===a));const at=T[a];if(at&&at.parentNode.scrollWidth>at.parentNode.clientWidth)at.parentNode.scrollTo({left:at.offsetLeft-at.parentNode.clientWidth/2+at.offsetWidth/2,behavior:'smooth'})}
+function txt(){const c=D[a]?D[a][1]:'';num.textContent=String(a+1).padStart(2,'0');sub.textContent=a===n-1?'The inspiration':"Artist's impression";
+ if(window.gsap){gsap.to(cap,{yPercent:-110,duration:.35,ease:'power2.in',onComplete:()=>{cap.textContent=c;gsap.fromTo(cap,{yPercent:110},{yPercent:0,duration:.7,ease:'expo.out'})}})}else cap.textContent=c;
+ if(bg){bg.style.opacity=0;setTimeout(()=>{bg.src=S[a].querySelector('img').src;bg.style.opacity=1},500)}}
+function go(i){a=(i+n)%n;lay();txt();run()}
+function run(){clearTimeout(timer);bar.classList.remove('run');void bar.offsetWidth;if(!vis)return;bar.classList.add('run');timer=setTimeout(()=>go(a+1),AUTO)}
+bar.addEventListener('animationend',()=>{});
+sec.addEventListener('mouseenter',()=>{clearTimeout(timer);sec.classList.add('paused')});sec.addEventListener('mouseleave',()=>{sec.classList.remove('paused');run()});
+document.getElementById('cinePrev').onclick=()=>go(a-1);document.getElementById('cineNext').onclick=()=>go(a+1);
+T.forEach((t,i)=>t.onclick=()=>go(i));
+st.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')go(a-1);if(e.key==='ArrowRight')go(a+1)});
+let x0=null,moved=false;st.addEventListener('pointerdown',e=>{x0=e.clientX;moved=false;st.classList.add('drag')});
+addEventListener('pointerup',e=>{if(x0===null)return;const dx=e.clientX-x0;st.classList.remove('drag');x0=null;if(Math.abs(dx)>45){moved=true;go(a+(dx<0?1:-1))}});
+st.addEventListener('click',e=>{if(moved)return;const f=e.target.closest('.cs');if(!f)return;const i=+f.dataset.i;if(i===a){if(window.openLb)openLb(D,a)}else go(i)});
+new IntersectionObserver(es=>{vis=es[0].isIntersecting;vis?run():clearTimeout(timer)},{threshold:.35}).observe(st);
+addEventListener('resize',lay);lay();cap.textContent=D[0]?D[0][1]:cap.textContent;})();
+/* ===== Marquee: base drift + scroll-velocity boost & skew ===== */
+(()=>{const t=document.querySelector('.mq-t');if(!t)return;let x=0,v=0,last=scrollY,dir=1;
+(function f(){const sy=scrollY,dy=sy-last;last=sy;if(dy)dir=dy>0?1:-1;v+= (Math.min(Math.abs(dy),80)*.06-v)*.08;x-=(.55+v*2.2)*dir;const w=t.scrollWidth/2;if(x<-w)x+=w;if(x>0)x-=w;
+t.style.transform=`translate3d(${x}px,0,0) skewX(${-Math.min(v*2.5,8)*dir}deg)`;requestAnimationFrame(f)})()})();
+/* ===== Magnetic buttons (desktop) ===== */
+if(!matchMedia('(pointer:coarse)').matches)document.querySelectorAll('.btn,.cine-btn,.callfab,.wafab').forEach(b=>{b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect();b.style.translate=`${(e.clientX-r.left-r.width/2)*.22}px ${(e.clientY-r.top-r.height/2)*.3}px`});b.addEventListener('mouseleave',()=>b.style.translate='')});
