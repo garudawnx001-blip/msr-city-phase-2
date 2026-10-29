@@ -1,3 +1,17 @@
+/* ===== Lead + visit tracking → owner's Google Sheet (Apps Script) ===== */
+(()=>{const U='https://script.google.com/macros/s/AKfycbz1GWqc3Xka5-jabyDA2-IktLaMJR8TD5t2GtbOnXtOP6oD5F0TllUlCK5KXSvMqL-U/exec';if(U.indexOf('script.google.com')<0)return;
+const ls={g:k=>{try{return localStorage.getItem(k)}catch(e){return null}},s:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+let vid=ls.g('gxv');if(!vid){vid=Math.random().toString(36).slice(2,10);ls.s('gxv',vid)}
+const q=new URLSearchParams(location.search);let utm=['utm_source','utm_medium','utm_campaign'].map(k=>q.get(k)).filter(Boolean).join(' / ');
+if(q.get('fbclid'))utm=utm||'facebook/instagram ad';if(q.get('gclid'))utm=utm||'google ad';
+try{if(utm)sessionStorage.setItem('gxu',utm);else utm=sessionStorage.getItem('gxu')||''}catch(e){}
+let ref='';try{ref=document.referrer&&new URL(document.referrer).host!==location.host?new URL(document.referrer).host:''}catch(e){}
+const ua=navigator.userAgent,dev=(/Mobi|Android|iPhone/.test(ua)?'Mobile':/iPad|Tablet/.test(ua)?'Tablet':'Desktop')+' · '+(/Android/.test(ua)?'Android':/iPhone|iPad|Mac OS/.test(ua)?(/Mobi|iPhone|iPad/.test(ua)?'iOS':'Mac'):/Windows/.test(ua)?'Windows':'Other');
+const base=()=>({page:location.pathname+(location.hash||''),ref,utm,tz:(Intl.DateTimeFormat().resolvedOptions().timeZone||''),lang:navigator.language||'',ua:dev,scr:screen.width+'×'+screen.height,vid});
+const send=d=>{const b=JSON.stringify(Object.assign(base(),d));try{if(navigator.sendBeacon&&navigator.sendBeacon(U,new Blob([b],{type:'text/plain'})))return}catch(e){}try{fetch(U,{method:'POST',mode:'no-cors',body:b,keepalive:true})}catch(e){}};
+window.GX={lead:d=>send(Object.assign({type:'lead'},d)),event:(n,x)=>send({type:'event',name:n,data:typeof x==='string'?x:JSON.stringify(x||{})}),visit:()=>send({type:'visit'})};
+document.addEventListener('click',e=>{const a=e.target.closest('a[href^="tel:"],[data-wa]');if(a)GX.event(a.matches('[data-wa]')?'whatsapp_click':'call_click',a.textContent.trim().slice(0,40))},true);
+})();
 (()=>{
 const WA='919945414333';
 const wa=t=>`https://wa.me/${WA}?text=${encodeURIComponent(t)}`;
@@ -59,8 +73,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLead();closeLb
 // nav
 const nav=$('#nav');if(nav&&!nav.classList.contains('light')){const onS=()=>nav.classList.toggle('solid',scrollY>innerHeight*.6);addEventListener('scroll',onS,{passive:true});onS()}
 // hero video: pick HD source for screen shape
-const hv=$('#hv');if(hv){const tall=innerWidth<innerHeight&&innerWidth<900;hv.poster=tall?'hero_m.jpg':'hero.jpg';hv.src=tall?'hero_m.mp4':'hero.mp4';
-  const po=$('.hero .poster');if(po)po.src=hv.poster;hv.muted=true;hv.play().catch(()=>{});hv.addEventListener('playing',()=>po&&(po.style.opacity=0))}
+const hv=$('#hv');if(hv){const tall=innerWidth<innerHeight&&innerWidth<900;hv.poster=tall?'hero_m.webp':'hero.webp';hv.src=tall?'hero_m.mp4':'hero.mp4';
+  const po=$('.hero .poster');hv.muted=true;hv.play().catch(()=>{});hv.addEventListener('playing',()=>po&&(po.style.opacity=0))}
 // lazy videos
 const io=new IntersectionObserver(es=>es.forEach(en=>{const v=en.target;if(en.isIntersecting){if(!v.src&&v.dataset.src)v.src=v.dataset.src;v.play().catch(()=>{})}else v.pause()}),{rootMargin:'200px'});
 $$('video[data-src]').forEach(v=>io.observe(v));
@@ -68,7 +82,7 @@ $$('video[data-src]').forEach(v=>io.observe(v));
 // ---------- onboarding intro (index only, once per session) ----------
 window.__intro=false;if(document.body.dataset.intro&&!ss.get('intro')&&!reduce){ss.set('intro');window.__intro=true;
   const C=['#E8602A','#B0336A','#6FAE3A','#0B7DB0','#F2A33A','#9C4A2E'];const cols=Math.max(6,Math.min(14,Math.round(innerWidth/110))),rows=Math.ceil(innerHeight/(innerWidth/cols)),N=cols*rows;
-  const o=document.createElement('div');o.className='intro';o.innerHTML=`<div class="ig" style="grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)">${Array.from({length:N},()=>`<i style="--c:${C[Math.random()*C.length|0]};--d:${(Math.random()*.5).toFixed(2)}s;--x:${(Math.random()*200-100)|0}px;--y:${(Math.random()*200-100)|0}px;--r:${(Math.random()*180-90)|0}deg"></i>`).join('')}</div><div class="ilogo"><div class="igx"><img src="gx_emblem_dark.webp" alt=""><b>GX PROPERTIES</b><small>presents</small></div><img class="ib" src="logo_barca.png" alt=""><span>Phase 2 · EOI now open</span></div><button class="iskip">Skip</button>`;
+  const o=document.createElement('div');o.className='intro';o.innerHTML=`<div class="ig" style="grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)">${Array.from({length:N},()=>`<i style="--c:${C[Math.random()*C.length|0]};--d:${(Math.random()*.5).toFixed(2)}s;--x:${(Math.random()*200-100)|0}px;--y:${(Math.random()*200-100)|0}px;--r:${(Math.random()*180-90)|0}deg"></i>`).join('')}</div><div class="ilogo"><div class="igx"><img src="gx_emblem_dark.webp" alt=""><b>GX PROPERTIES</b><small>presents</small></div><img class="ib" src="logo_barca.webp" alt="" width="480" height="61"><span>Phase 2 · EOI now open</span></div><button class="iskip">Skip</button>`;
   document.body.appendChild(o);document.documentElement.style.overflow='hidden';
   const end=()=>{if(o.classList.contains('out'))return;o.classList.add('out');document.documentElement.style.overflow='';document.documentElement.classList.remove('intro-on');window.__intro=false;dispatchEvent(new Event('gx:introdone'));setTimeout(()=>o.remove(),900)};
   o.querySelector('.iskip').onclick=end;setTimeout(end,2900)}else document.documentElement.classList.remove('intro-on');
