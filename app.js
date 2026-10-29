@@ -46,13 +46,14 @@ window.openLead=(want='Price sheet',cfg='')=>{
   $('#mtitle').textContent=T[want]||('Get the '+want.toLowerCase()+(cfg?' · '+cfg:''));
   $('input[name=want]',modal).value=want+(cfg?' — '+cfg:'');
   if(cfg){const w=cfg.startsWith('3')?'3 BHK':'2 BHK';$$('.pills button',modal).forEach(b=>b.classList.toggle('on',b.textContent===w))}
-  modal.classList.add('open');ss.set('popped');setTimeout(()=>$('input[name=name]',modal).focus({preventScroll:true}),350)};
+  modal.classList.add('open');ss.set('popped');if(!window.__autoPop&&matchMedia('(pointer:fine)').matches)setTimeout(()=>$('input[name=name]',modal).focus({preventScroll:true}),350);window.__autoPop=false};
 const closeLead=()=>modal.classList.remove('open');
 document.addEventListener('click',e=>{const t=e.target.closest('[data-lead]');if(t){e.preventDefault();openLead(t.dataset.lead,t.dataset.cfg||'')}
   if(e.target===modal||e.target.closest('[data-close]'))closeLead()});
-let auto=!!ss.get('popped');const pop=()=>{if(auto||modal.classList.contains('open'))return;auto=true;openLead('Price sheet')};
-setTimeout(pop,20000);
-addEventListener('scroll',()=>{if(scrollY/(document.body.scrollHeight-innerHeight)>.55)pop()},{passive:true});
+let auto=!!ss.get('popped');const pop=()=>{if(auto||modal.classList.contains('open'))return;auto=true;window.__autoPop=true;openLead('Price sheet')};
+setTimeout(pop,45000);
+addEventListener('scroll',()=>{if(scrollY/(document.body.scrollHeight-innerHeight)>.7)pop()},{passive:true});
+addEventListener('keydown',e=>{if(e.key==='Escape')closeLead()});
 document.addEventListener('mouseout',e=>{if(!e.relatedTarget&&e.clientY<5)pop()});
 const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600)};
 $$('.leadform').forEach(f=>f.addEventListener('submit',e=>{e.preventDefault();
@@ -80,7 +81,7 @@ const io=new IntersectionObserver(es=>es.forEach(en=>{const v=en.target;if(en.is
 $$('video[data-src]').forEach(v=>io.observe(v));
 
 // ---------- onboarding intro (index only, once per session) ----------
-window.__intro=false;if(document.body.dataset.intro&&!ss.get('intro')&&!reduce){ss.set('intro');window.__intro=true;
+window.__intro=false;if(document.body.dataset.intro&&window.__playIntro&&!reduce){window.__intro=true;scrollTo(0,0);
   const C=['#E8602A','#B0336A','#6FAE3A','#0B7DB0','#F2A33A','#9C4A2E'];const cols=Math.max(6,Math.min(14,Math.round(innerWidth/110))),rows=Math.ceil(innerHeight/(innerWidth/cols)),N=cols*rows;
   const o=document.createElement('div');o.className='intro';o.innerHTML=`<div class="ig" style="grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)">${Array.from({length:N},()=>`<i style="--c:${C[Math.random()*C.length|0]};--d:${(Math.random()*.5).toFixed(2)}s;--x:${(Math.random()*200-100)|0}px;--y:${(Math.random()*200-100)|0}px;--r:${(Math.random()*180-90)|0}deg"></i>`).join('')}</div><div class="ilogo"><div class="igx"><img src="gx_emblem_dark.webp" alt=""><b>GX PROPERTIES</b><small>presents</small></div><img class="ib" src="logo_barca.webp" alt="" width="480" height="61"><span>Phase 2 · EOI now open</span></div><button class="iskip">Skip</button>`;
   document.body.appendChild(o);document.documentElement.style.overflow='hidden';
@@ -131,7 +132,7 @@ if(window.gsap&&!reduce){gsap.registerPlugin(ScrollTrigger);
   $$('[data-count]').forEach(el=>{const to=+el.dataset.count,o={v:0};ScrollTrigger.create({trigger:el,start:'top 90%',once:true,onEnter:()=>gsap.to(o,{v:to,duration:1.8,ease:'power3.out',onUpdate:()=>el.textContent=Math.round(o.v).toLocaleString('en-IN')})})});
   const tr=$('#track');if(tr){gsap.matchMedia().add('(min-width:821px)',()=>{const d=()=>tr.scrollWidth-innerWidth+40;
     gsap.to(tr,{x:()=>-d(),ease:'none',scrollTrigger:{trigger:'#inside',start:'top top',end:()=>'+='+d(),pin:true,scrub:1,invalidateOnRefresh:true,onUpdate:s=>{const p=$('#progbar');if(p)p.style.width=(s.progress*100)+'%'}}})})}
-  addEventListener('load',()=>ScrollTrigger.refresh());
+  addEventListener('load',()=>{if(!location.hash)scrollTo(0,0);ScrollTrigger.refresh()});addEventListener('pageshow',e=>{if(e.persisted)ScrollTrigger.refresh()});document.fonts&&document.fonts.ready.then(()=>ScrollTrigger.refresh());
 }else{$$('.rv').forEach(e=>{e.style.opacity=1;e.style.transform='none'});document.documentElement.classList.remove('js')}
 })();
 
