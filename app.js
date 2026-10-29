@@ -66,12 +66,12 @@ const io=new IntersectionObserver(es=>es.forEach(en=>{const v=en.target;if(en.is
 $$('video[data-src]').forEach(v=>io.observe(v));
 
 // ---------- onboarding intro (index only, once per session) ----------
-if(document.body.dataset.intro&&!ss.get('intro')&&!reduce&&!lite){ss.set('intro');
-  const C=['#E8602A','#B0336A','#6FAE3A','#0B7DB0','#F2A33A','#9C4A2E'];const N=innerWidth<700?48:96;
-  const o=document.createElement('div');o.className='intro';o.innerHTML=`<div class="ig">${Array.from({length:N},()=>`<i style="--c:${C[Math.random()*C.length|0]};--d:${(Math.random()*.5).toFixed(2)}s;--x:${(Math.random()*200-100)|0}px;--y:${(Math.random()*200-100)|0}px;--r:${(Math.random()*180-90)|0}deg"></i>`).join('')}</div><div class="ilogo"><div class="igx"><img src="gx_emblem_dark.webp" alt=""><b>GX PROPERTIES</b><small>presents</small></div><img class="ib" src="logo_barca.png" alt=""><span>Phase 2 · EOI now open</span></div><button class="iskip">Skip</button>`;
+window.__intro=false;if(document.body.dataset.intro&&!ss.get('intro')&&!reduce){ss.set('intro');window.__intro=true;
+  const C=['#E8602A','#B0336A','#6FAE3A','#0B7DB0','#F2A33A','#9C4A2E'];const cols=Math.max(6,Math.min(14,Math.round(innerWidth/110))),rows=Math.ceil(innerHeight/(innerWidth/cols)),N=cols*rows;
+  const o=document.createElement('div');o.className='intro';o.innerHTML=`<div class="ig" style="grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr)">${Array.from({length:N},()=>`<i style="--c:${C[Math.random()*C.length|0]};--d:${(Math.random()*.5).toFixed(2)}s;--x:${(Math.random()*200-100)|0}px;--y:${(Math.random()*200-100)|0}px;--r:${(Math.random()*180-90)|0}deg"></i>`).join('')}</div><div class="ilogo"><div class="igx"><img src="gx_emblem_dark.webp" alt=""><b>GX PROPERTIES</b><small>presents</small></div><img class="ib" src="logo_barca.png" alt=""><span>Phase 2 · EOI now open</span></div><button class="iskip">Skip</button>`;
   document.body.appendChild(o);document.documentElement.style.overflow='hidden';
-  const end=()=>{if(o.classList.contains('out'))return;o.classList.add('out');document.documentElement.style.overflow='';setTimeout(()=>o.remove(),900)};
-  o.querySelector('.iskip').onclick=end;setTimeout(end,2900)}
+  const end=()=>{if(o.classList.contains('out'))return;o.classList.add('out');document.documentElement.style.overflow='';document.documentElement.classList.remove('intro-on');window.__intro=false;dispatchEvent(new Event('gx:introdone'));setTimeout(()=>o.remove(),900)};
+  o.querySelector('.iskip').onclick=end;setTimeout(end,2900)}else document.documentElement.classList.remove('intro-on');
 // ---------- "Find my home" 3-tap onboarding ----------
 const FQ=[['Who is it for?',['Just me / couple','Family with kids','Parents & family','Investment']],['Your budget?',['Up to ₹1.8 Cr','₹1.8 – 2.4 Cr','₹2.4 – 2.8 Cr','₹2.8 Cr +']],['Where do you live now?',['Bengaluru','Elsewhere in India','Outside India (NRI)']]];
 const FR=[['2 BHK Classic','~1,200 sq ft','1.59'],['2 BHK Luxe','~1,350 sq ft','1.79'],['3 BHK Premium','~1,750 sq ft','2.32'],['3 BHK Grand','~1,930 sq ft','2.56'],['3 BHK Luxe','~2,275 sq ft','2.99']];
@@ -106,8 +106,10 @@ if(window.gsap&&!reduce){gsap.registerPlugin(ScrollTrigger);
       ScrollTrigger.create({trigger:el,start:'top 82%',once:true,onEnter:()=>gsap.to(t.children,{scale:0,rotate:()=>gsap.utils.random(-60,60),opacity:0,duration:.7,ease:'power3.in',stagger:{each:.012,from:'random'},onComplete:()=>t.remove()})})})}
   if(!lite&&!touch)try{const lenis=new Lenis({lerp:.1});lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(t=>lenis.raf(t*1000));gsap.ticker.lagSmoothing(0);
     $$('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const id=a.getAttribute('href');if(id.length>1&&$(id)){e.preventDefault();lenis.scrollTo(id,{offset:-70})}}))}catch(e){}
-  if($('.hero')){gsap.from('.hero h1 .w>span',{yPercent:110,duration:1.2,ease:'expo.out',stagger:.05,delay:.3});gsap.from('.hero .chip,.hero .logo,.hero .sub,.hero .facts,.hero .ctas',{y:40,opacity:0,duration:1.2,ease:'expo.out',stagger:.08,delay:.15});
-    gsap.from('.hero .card',{y:60,opacity:0,duration:1.3,ease:'expo.out',delay:.45});
+  if($('.hero')){const HX='.hero h1,.hero .chip,.hero .logo,.hero .sub,.hero .facts,.hero .ctas,.hero .card,.hero .presented';
+    const tl=gsap.timeline({paused:true,onStart:()=>{gsap.set(HX,{visibility:'visible'})}});
+    tl.from('.hero h1 .w>span',{yPercent:115,duration:1.2,ease:'expo.out',stagger:.045},.15).from('.hero .chip,.hero .logo,.hero .sub,.hero .facts,.hero .ctas,.hero .presented',{y:36,opacity:0,duration:1.1,ease:'expo.out',stagger:.07},0).from('.hero .card',{y:56,opacity:0,duration:1.2,ease:'expo.out'},.3);
+    const go=()=>tl.play();window.__intro?addEventListener('gx:introdone',()=>setTimeout(go,120),{once:true}):requestAnimationFrame(go);
     gsap.to('.hero video,.hero .poster',{scale:1.1,yPercent:7,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:true}})}
   $$('.eyebrow').forEach(e=>ScrollTrigger.create({trigger:e,start:'top 92%',once:true,onEnter:()=>e.classList.add('in')}));
   ScrollTrigger.batch('.rv',{start:'top 88%',onEnter:b=>gsap.to(b,{opacity:1,y:0,duration:1.1,ease:'expo.out',stagger:.08,overwrite:true})});
@@ -116,7 +118,7 @@ if(window.gsap&&!reduce){gsap.registerPlugin(ScrollTrigger);
   const tr=$('#track');if(tr){gsap.matchMedia().add('(min-width:821px)',()=>{const d=()=>tr.scrollWidth-innerWidth+40;
     gsap.to(tr,{x:()=>-d(),ease:'none',scrollTrigger:{trigger:'#inside',start:'top top',end:()=>'+='+d(),pin:true,scrub:1,invalidateOnRefresh:true,onUpdate:s=>{const p=$('#progbar');if(p)p.style.width=(s.progress*100)+'%'}}})})}
   addEventListener('load',()=>ScrollTrigger.refresh());
-}else $$('.rv').forEach(e=>{e.style.opacity=1;e.style.transform='none'});
+}else{$$('.rv').forEach(e=>{e.style.opacity=1;e.style.transform='none'});document.documentElement.classList.remove('js')}
 })();
 
 /* ===== Cinematic 3D carousel ===== */

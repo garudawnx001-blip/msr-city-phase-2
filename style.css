@@ -423,3 +423,7 @@ footer p.disc{max-width:1000px;line-height:1.7}
 .mq-t span{font:500 italic clamp(22px,2.6vw,36px)/1 var(--serif);white-space:nowrap}
 .mq-t span:nth-of-type(odd){color:#fff}.mq-t span:nth-of-type(even){color:transparent;-webkit-text-stroke:1px rgba(244,233,220,.7)}
 .tl{width:16px;height:16px;flex:none;transform:rotate(45deg);border-radius:3px;background:conic-gradient(#E8602A 0 25%,#B0336A 0 50%,#0B7DB0 0 75%,#6FAE3A 0)}
+
+/* no-flash hero + pre-paint intro cover */
+.js .hero h1,.js .hero .chip,.js .hero .logo,.js .hero .sub,.js .hero .facts,.js .hero .ctas,.js .hero .card,.js .hero .presented{visibility:hidden}
+html.intro-on{overflow:hidden}html.intro-on body::before{content:"";position:fixed;inset:0;z-index:199;background:#1A120E}
