@@ -68,10 +68,10 @@ $$('video[data-src]').forEach(v=>io.observe(v));
 // ---------- onboarding intro (index only, once per session) ----------
 if(document.body.dataset.intro&&!ss.get('intro')&&!reduce&&!lite){ss.set('intro');
   const C=['#E8602A','#B0336A','#6FAE3A','#0B7DB0','#F2A33A','#9C4A2E'];const N=innerWidth<700?48:96;
-  const o=document.createElement('div');o.className='intro';o.innerHTML=`<div class="ig">${Array.from({length:N},()=>`<i style="--c:${C[Math.random()*C.length|0]};--d:${(Math.random()*.5).toFixed(2)}s;--x:${(Math.random()*200-100)|0}px;--y:${(Math.random()*200-100)|0}px;--r:${(Math.random()*180-90)|0}deg"></i>`).join('')}</div><div class="ilogo"><img src="logo_barca.png" alt=""><span>Phase 2 · EOI now open</span></div><button class="iskip">Skip</button>`;
+  const o=document.createElement('div');o.className='intro';o.innerHTML=`<div class="ig">${Array.from({length:N},()=>`<i style="--c:${C[Math.random()*C.length|0]};--d:${(Math.random()*.5).toFixed(2)}s;--x:${(Math.random()*200-100)|0}px;--y:${(Math.random()*200-100)|0}px;--r:${(Math.random()*180-90)|0}deg"></i>`).join('')}</div><div class="ilogo"><div class="igx"><img src="gx_emblem_dark.webp" alt=""><b>GX PROPERTIES</b><small>presents</small></div><img class="ib" src="logo_barca.png" alt=""><span>Phase 2 · EOI now open</span></div><button class="iskip">Skip</button>`;
   document.body.appendChild(o);document.documentElement.style.overflow='hidden';
   const end=()=>{if(o.classList.contains('out'))return;o.classList.add('out');document.documentElement.style.overflow='';setTimeout(()=>o.remove(),900)};
-  o.querySelector('.iskip').onclick=end;setTimeout(end,2300)}
+  o.querySelector('.iskip').onclick=end;setTimeout(end,2900)}
 // ---------- "Find my home" 3-tap onboarding ----------
 const FQ=[['Who is it for?',['Just me / couple','Family with kids','Parents & family','Investment']],['Your budget?',['Up to ₹1.8 Cr','₹1.8 – 2.4 Cr','₹2.4 – 2.8 Cr','₹2.8 Cr +']],['Where do you live now?',['Bengaluru','Elsewhere in India','Outside India (NRI)']]];
 const FR=[['2 BHK Classic','~1,200 sq ft','1.59'],['2 BHK Luxe','~1,350 sq ft','1.79'],['3 BHK Premium','~1,750 sq ft','2.32'],['3 BHK Grand','~1,930 sq ft','2.56'],['3 BHK Luxe','~2,275 sq ft','2.99']];
